@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 3D Agent - 一站式3D模型生成助手
 
-## Getting Started
+输入文字描述或上传参考图片，AI 自动生成针对各 3D 生成平台优化的提示词，一键复制并跳转到目标平台生成 3D 模型。
 
-First, run the development server:
+## 功能特性
+
+- **智能提示词生成**: 基于智谱 GLM-4/GLM-4V，自动将中文描述转换为英文优化提示词
+- **多平台支持**: 同时生成 Meshy AI、Tripo3D、Luma AI 三个平台的优化提示词
+- **图片参考**: 支持上传参考图片，AI 会分析图片内容生成提示词
+- **一键跳转**: 复制提示词并直接打开对应平台
+- **历史记录**: 本地保存生成历史，方便回溯
+- **暗黑模式**: 支持明暗主题切换
+
+## 支持的平台
+
+| 平台 | 特点 | 输入类型 | 导出格式 |
+|------|------|----------|----------|
+| **Meshy AI** | 最适合3D打印，高质量网格 | 文字 + 图片 | GLB, FBX, OBJ, STL, 3MF |
+| **Tripo3D** | 速度快，支持面数控制 | 文字 + 图片 | GLB, FBX, OBJ, USD, STL |
+| **Luma AI** | 10秒生成，有免费额度 | 文字 | GLB, OBJ, FBX |
+
+## 技术栈
+
+- **框架**: Next.js 16 (App Router)
+- **语言**: TypeScript
+- **样式**: Tailwind CSS v4 + shadcn/ui
+- **AI**: 智谱 GLM API (OpenAI 兼容)
+- **主题**: next-themes
+
+## 快速开始
+
+### 1. 克隆项目
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/3d-agent.git
+cd 3d-agent
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. 安装依赖
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. 配置环境变量
 
-## Learn More
+复制 `.env.example` 到 `.env.local` 并填入你的智谱 API Key：
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+cp .env.example .env.local
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+编辑 `.env.local`：
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+GLM_API_KEY=你的智谱API密钥
+```
 
-## Deploy on Vercel
+获取 API Key: https://open.bigmodel.cn/
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 4. 启动开发服务器
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm dev
+```
+
+访问 http://localhost:3000
+
+## 项目结构
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── api/generate-prompts/  # API 路由
+│   ├── history/            # 历史记录页
+│   ├── result/             # 结果展示页
+│   └── page.tsx            # 首页
+├── components/
+│   ├── home/               # 首页组件
+│   ├── result/             # 结果页组件
+│   ├── layout/             # 布局组件
+│   ├── shared/             # 共享组件
+│   └── ui/                 # shadcn/ui 组件
+├── lib/
+│   ├── ai/                 # AI 引擎 (GLM 集成)
+│   ├── hooks/              # React Hooks
+│   ├── storage/            # 本地存储
+│   └── constants.ts        # 平台配置
+└── types/                  # TypeScript 类型定义
+```
+
+## 使用流程
+
+1. 在首页输入你想要的 3D 模型描述（中英文均可）
+2. 可选：上传参考图片
+3. 点击「生成提示词」
+4. 查看为三个平台生成的优化提示词
+5. 点击「复制提示词并打开平台」
+6. 在目标平台粘贴提示词，生成 3D 模型
+
+## 部署
+
+### Vercel 部署（推荐）
+
+1. 将代码推送到 GitHub
+2. 在 Vercel 导入项目
+3. 设置环境变量 `GLM_API_KEY`
+4. 部署完成
+
+或使用命令行：
+
+```bash
+npx vercel
+```
+
+### Docker 部署
+
+```bash
+docker build -t 3d-agent .
+docker run -p 3000:3000 -e GLM_API_KEY=your-key 3d-agent
+```
+
+## 开发命令
+
+```bash
+pnpm dev      # 启动开发服务器
+pnpm build    # 生产构建
+pnpm start    # 启动生产服务器
+pnpm lint     # 代码检查
+```
+
+## 许可证
+
+MIT
