@@ -2,6 +2,8 @@
 
 > 输入文字描述或上传参考图片，AI 自动生成针对各 3D 生成平台优化的提示词，一键复制并跳转到目标平台生成 3D 模型。
 
+**在线体验：[3d.rxcloud.group](https://3d.rxcloud.group)**
+
 ![3D Agent Homepage](/public/images/homepage-preview.png)
 
 ## 功能特性
@@ -190,6 +192,7 @@ pnpm dev
 src/
 ├── app/                       # Next.js App Router
 │   ├── api/generate-prompts/  # API 路由 - 提示词生成接口
+│   ├── about/                 # 关于页
 │   ├── history/               # 历史记录页
 │   ├── result/                # 结果展示页
 │   ├── layout.tsx             # 根布局 (Outfit 字体、主题)
@@ -217,6 +220,13 @@ src/
     └── history.ts             # 历史记录类型
 ```
 
+## 在线体验
+
+| 地址 | 说明 |
+|------|------|
+| [3d.rxcloud.group](https://3d.rxcloud.group) | 自定义域名（推荐） |
+| [3d-agent-ten.vercel.app](https://3d-agent-ten.vercel.app) | Vercel 默认域名 |
+
 ## 部署
 
 ### Vercel 部署（推荐）
@@ -225,6 +235,7 @@ src/
 2. 在 Vercel 导入项目
 3. 设置环境变量 `GLM_API_KEY`、`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`
 4. 部署完成
+5. （可选）绑定自定义域名，添加 DNS 记录：`A 3d.rxcloud.group 76.76.21.21`
 
 ### Docker 部署
 

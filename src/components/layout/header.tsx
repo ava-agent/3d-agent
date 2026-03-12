@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Box, History, Moon, Sun } from 'lucide-react';
+import { Box, History, Info, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ export function Header() {
   const navItems = [
     { href: '/', label: '首页', icon: Box },
     { href: '/history', label: '历史', icon: History },
+    { href: '/about', label: '关于', icon: Info },
   ];
 
   return (
