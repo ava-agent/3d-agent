@@ -4,10 +4,6 @@
 
 ![3D Agent Homepage](/public/images/homepage-preview.png)
 
-## 系统架构
-
-![系统架构图](/public/images/architecture.png)
-
 ## 功能特性
 
 - **智能提示词生成** — 基于智谱 GLM-4/GLM-4V，自动将中文描述转换为英文优化提示词
@@ -36,14 +32,117 @@
 5. 点击「复制并打开平台」
 6. 在目标平台粘贴提示词，生成 3D 模型
 
-## 技术栈
+---
 
-- **框架**: Next.js 16 (App Router) + React 19
-- **语言**: TypeScript (Strict Mode)
-- **样式**: Tailwind CSS v4 + shadcn/ui + 自定义 Neon Forge 主题
-- **AI**: 智谱 GLM-4/GLM-4V API (OpenAI SDK 兼容)
-- **数据库**: Supabase (生成记录持久化)
-- **部署**: Vercel
+## 技术架构
+
+### 技术栈总览
+
+![技术栈架构](/public/images/tech-stack.png)
+
+| 层级 | 技术选型 | 说明 |
+|------|---------|------|
+| **前端展示层** | Next.js 16 + React 19 + Tailwind CSS v4 + shadcn/ui | App Router, Neon Forge 自定义主题 |
+| **交互逻辑层** | Custom Hooks + Browser Storage | useGenerate, useHistory, sessionStorage |
+| **API 服务层** | Next.js API Routes | 输入校验, 请求构建, JSON 解析, 错误处理 |
+| **AI 引擎层** | OpenAI SDK + GLM-4/GLM-4V | 多模态路由, System Prompt, 结构化输出 |
+| **数据持久层** | Supabase + localStorage | PostgreSQL (RLS), 浏览器本地存储 |
+
+### AI Agent 设计
+
+![AI Agent 设计架构](/public/images/ai-agent-design.png)
+
+本项目采用 **Single-Turn Structured Output Agent** 模式 — 一种专门化的提示词工程 Agent 架构：
+
+#### Agent 模式分析
+
+| 特性 | 本项目方案 | 说明 |
+|------|-----------|------|
+| **知识注入** | Static Injection (非 RAG) | 平台知识直接嵌入 System Prompt，而非从向量数据库检索 |
+| **推理模式** | Single-Turn (非 ReAct) | 单次 LLM 调用完成所有任务，无需迭代推理或工具调用 |
+| **模型路由** | Dynamic Selection | 根据输入类型动态选择 GLM-4 (文本) 或 GLM-4V (视觉) |
+| **输出控制** | JSON Schema Enforcement | 通过 System Prompt 约束输出为结构化 JSON |
+| **多任务** | Multi-Task Single-Call | 语言检测、翻译、3平台优化在一次调用中完成 |
+
+#### Agent Core 组件
+
+**1. Input Router (输入路由)**
+
+根据用户输入类型动态构建请求：
+
+```
+Has Image? ──YES──→ GLM-4V (vision) + multimodal content parts
+             │
+             NO───→ GLM-4 (text)  + text-only content
+```
+
+**2. System Prompt (系统提示词 — "专家人格")**
+
+System Prompt 扮演 **"3D 模型提示词优化专家"** 角色，嵌入三个平台的领域知识：
+
+| 平台 | 嵌入知识 | 约束条件 |
+|------|---------|---------|
+| **Meshy AI** | 材质描述、3D打印适配、PBR 渲染提示 | max 600 chars, 英文输出 |
+| **Tripo3D** | 几何清晰度、拓扑质量、负面提示词生成 | max 1000 chars, 含 negative prompt |
+| **Luma AI** | 简洁直接的描述，单一主体 | max 500 chars, 简短优先 |
+
+**3. Language Pipeline (语言处理管线)**
+
+```
+用户输入 → 语言检测 (zh/en/other) → 中译英翻译 → 英文提示词生成
+```
+
+所有平台提示词以英文输出（平台要求），使用技巧以中文输出（用户界面语言）。
+
+**4. Structured Output (结构化输出)**
+
+通过 System Prompt 中的 JSON Schema 定义，强制 LLM 输出结构化数据：
+
+```json
+{
+  "detectedLanguage": "zh",
+  "translatedInput": "English translation",
+  "prompts": {
+    "meshy": { "prompt": "...", "tips": ["中文技巧"], "recommendedSettings": {} },
+    "tripo": { "prompt": "...", "negativePrompt": "...", "tips": [], "recommendedSettings": {} },
+    "luma":  { "prompt": "...", "tips": [], "recommendedSettings": {} }
+  }
+}
+```
+
+### Agent 执行流程
+
+![Agent 执行流程](/public/images/agent-execution.png)
+
+完整的 Agent 执行管线分为 8 个阶段：
+
+| 阶段 | 名称 | 关键操作 |
+|------|------|---------|
+| 1 | **用户输入** | 文字描述 (≤2000 chars) + 可选参考图片 (JPG/PNG/WebP, ≤10MB) |
+| 2 | **请求构建** | 根据是否有图片，构建多模态或纯文本 content parts |
+| 3 | **模型路由** | 有图片 → GLM-4V, 无图片 → GLM-4 |
+| 4 | **LLM 推理** | System Prompt + User Message → Chat Completions API (max_tokens=2000) |
+| 5 | **响应解析** | Regex `/\{[\s\S]*\}/` 提取 JSON → `JSON.parse` → 类型化结果 |
+| 6 | **结果映射** | 映射 platform IDs → 附加 jumpUrl → 构造标准化响应 |
+| 7 | **并行持久化** | Supabase 异步写入 (fire-and-forget) + sessionStorage 存储 |
+| 8 | **结果展示** | 3 张平台卡片 + 一键复制跳转 + 历史记录保存 |
+
+**错误处理路径：**
+- 输入校验失败 → HTTP 400
+- LLM 调用异常 → HTTP 500
+- JSON 解析失败 → throw Error
+- Supabase 写入失败 → console.error (不阻塞主流程)
+
+### 为什么不用 RAG / ReAct？
+
+| 方案 | 适用场景 | 本项目不适用的原因 |
+|------|---------|-------------------|
+| **RAG** | 知识库频繁更新、海量文档检索 | 3 个平台的知识是静态的，直接嵌入 System Prompt 更高效 |
+| **ReAct** | 需要多步工具调用、动态信息获取 | 提示词生成是单步任务，无需搜索或调用外部工具 |
+| **Multi-Agent** | 复杂工作流需要多个专业 Agent 协作 | 单个 Expert Agent 足以覆盖所有平台优化 |
+| **当前方案** | 领域知识固定、单步结构化输出 | ✅ 延迟最低、架构最简、知识可控 |
+
+---
 
 ## 快速开始
 
@@ -104,15 +203,18 @@ src/
 │   └── ui/                    # shadcn/ui 基础组件
 ├── lib/
 │   ├── ai/                    # AI 引擎
-│   │   ├── claude-client.ts   # 智谱 GLM API 客户端
-│   │   ├── prompt-generator.ts # 提示词生成逻辑
-│   │   └── system-prompt.ts   # 系统提示词模板
-│   ├── hooks/                 # React Hooks
-│   ├── storage/               # 本地存储
-│   ├── supabase/              # Supabase 客户端
+│   │   ├── claude-client.ts   # 智谱 GLM API 客户端 (OpenAI SDK 兼容)
+│   │   ├── prompt-generator.ts # Agent 核心：输入路由 + LLM 调用 + 响应解析
+│   │   └── system-prompt.ts   # 系统提示词 (Expert Persona + 平台知识注入)
+│   ├── hooks/                 # React Hooks (useGenerate, useHistory)
+│   ├── storage/               # 本地存储 (历史持久化)
+│   ├── supabase/              # Supabase 客户端 (生成记录)
 │   ├── constants.ts           # 平台配置常量
 │   └── utils.ts               # 工具函数
 └── types/                     # TypeScript 类型定义
+    ├── api.ts                 # API 请求/响应类型
+    ├── platform.ts            # 平台配置 + 生成结果类型
+    └── history.ts             # 历史记录类型
 ```
 
 ## 部署
