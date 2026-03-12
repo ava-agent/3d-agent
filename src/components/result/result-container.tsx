@@ -12,22 +12,25 @@ import { PLATFORMS } from '@/lib/constants';
 
 type ResultData = NonNullable<GeneratePromptsResponse['data']>;
 
+function getStoredResult(): ResultData | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = sessionStorage.getItem('3d-agent-result');
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function ResultContainer() {
   const router = useRouter();
-  const [data, setData] = useState<ResultData | null>(null);
+  const [data] = useState<ResultData | null>(getStoredResult);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('3d-agent-result');
-    if (stored) {
-      try {
-        setData(JSON.parse(stored));
-      } catch {
-        router.push('/');
-      }
-    } else {
+    if (!data) {
       router.push('/');
     }
-  }, [router]);
+  }, [data, router]);
 
   if (!data) {
     return (

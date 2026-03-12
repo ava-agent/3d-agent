@@ -1,22 +1,21 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { HistoryEntry } from '@/types/history';
 import { HISTORY_STORAGE_KEY, MAX_HISTORY_ENTRIES } from '@/lib/constants';
 
-export function useHistory() {
-  const [entries, setEntries] = useState<HistoryEntry[]>([]);
-
-  useEffect(() => {
+function getStoredEntries(): HistoryEntry[] {
+  if (typeof window === 'undefined') return [];
+  try {
     const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
-    if (stored) {
-      try {
-        setEntries(JSON.parse(stored));
-      } catch {
-        setEntries([]);
-      }
-    }
-  }, []);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function useHistory() {
+  const [entries, setEntries] = useState<HistoryEntry[]>(getStoredEntries);
 
   const addEntry = useCallback((entry: HistoryEntry) => {
     setEntries((prev) => {

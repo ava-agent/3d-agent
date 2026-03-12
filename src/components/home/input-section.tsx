@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { ImagePlus, Loader2, Sparkles, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -108,10 +109,13 @@ export function InputSection() {
 
           {imageData ? (
             <div className="relative inline-block">
-              <img
+              <Image
                 src={imageData.previewUrl}
                 alt="参考图片"
+                width={128}
+                height={128}
                 className="h-32 w-32 rounded-lg border object-cover"
+                unoptimized
               />
               <button
                 onClick={() => setImageData(null)}

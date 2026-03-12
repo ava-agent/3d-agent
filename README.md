@@ -2,6 +2,10 @@
 
 输入文字描述或上传参考图片，AI 自动生成针对各 3D 生成平台优化的提示词，一键复制并跳转到目标平台生成 3D 模型。
 
+## 系统架构
+
+![系统架构图](/public/images/architecture.png)
+
 ## 功能特性
 
 - **智能提示词生成**: 基于智谱 GLM-4/GLM-4V，自动将中文描述转换为英文优化提示词
@@ -18,6 +22,17 @@
 | **Meshy AI** | 最适合3D打印，高质量网格 | 文字 + 图片 | GLB, FBX, OBJ, STL, 3MF |
 | **Tripo3D** | 速度快，支持面数控制 | 文字 + 图片 | GLB, FBX, OBJ, USD, STL |
 | **Luma AI** | 10秒生成，有免费额度 | 文字 | GLB, OBJ, FBX |
+
+## 使用流程
+
+![使用流程图](/public/images/user-flow.png)
+
+1. 在首页输入你想要的 3D 模型描述（中英文均可）
+2. 可选：上传参考图片
+3. 点击「生成提示词」
+4. 查看为三个平台生成的优化提示词
+5. 点击「复制提示词并打开平台」
+6. 在目标平台粘贴提示词，生成 3D 模型
 
 ## 技术栈
 
@@ -70,33 +85,36 @@ pnpm dev
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── api/generate-prompts/  # API 路由
-│   ├── history/            # 历史记录页
-│   ├── result/             # 结果展示页
-│   └── page.tsx            # 首页
+├── app/                       # Next.js App Router
+│   ├── api/generate-prompts/  # API 路由 - 提示词生成接口
+│   ├── history/               # 历史记录页
+│   ├── result/                # 结果展示页
+│   ├── layout.tsx             # 根布局 (字体、主题、元数据)
+│   └── page.tsx               # 首页
 ├── components/
-│   ├── home/               # 首页组件
-│   ├── result/             # 结果页组件
-│   ├── layout/             # 布局组件
-│   ├── shared/             # 共享组件
-│   └── ui/                 # shadcn/ui 组件
+│   ├── home/                  # 首页组件 (Hero、输入表单)
+│   ├── result/                # 结果页组件 (平台卡片)
+│   ├── layout/                # 布局组件 (Header、Footer)
+│   ├── shared/                # 共享组件 (复制按钮)
+│   ├── providers.tsx          # 客户端 Provider (主题、Toast)
+│   └── ui/                    # shadcn/ui 基础组件
 ├── lib/
-│   ├── ai/                 # AI 引擎 (GLM 集成)
-│   ├── hooks/              # React Hooks
-│   ├── storage/            # 本地存储
-│   └── constants.ts        # 平台配置
-└── types/                  # TypeScript 类型定义
+│   ├── ai/                    # AI 引擎
+│   │   ├── claude-client.ts   # 智谱 GLM API 客户端
+│   │   ├── prompt-generator.ts # 提示词生成逻辑
+│   │   └── system-prompt.ts   # 系统提示词模板
+│   ├── hooks/                 # React Hooks
+│   │   ├── use-generate.ts    # 生成请求管理
+│   │   └── use-history.ts     # 历史记录管理
+│   ├── storage/               # 本地存储
+│   │   └── history.ts         # 历史持久化
+│   ├── constants.ts           # 平台配置常量
+│   └── utils.ts               # 工具函数
+└── types/                     # TypeScript 类型定义
+    ├── api.ts                 # API 请求/响应类型
+    ├── platform.ts            # 平台配置类型
+    └── history.ts             # 历史记录类型
 ```
-
-## 使用流程
-
-1. 在首页输入你想要的 3D 模型描述（中英文均可）
-2. 可选：上传参考图片
-3. 点击「生成提示词」
-4. 查看为三个平台生成的优化提示词
-5. 点击「复制提示词并打开平台」
-6. 在目标平台粘贴提示词，生成 3D 模型
 
 ## 部署
 
