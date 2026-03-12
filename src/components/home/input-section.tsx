@@ -3,12 +3,10 @@
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ImagePlus, Loader2, Sparkles, X } from 'lucide-react';
+import { ImagePlus, Loader2, X, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { useGenerate } from '@/lib/hooks/use-generate';
 import { saveToHistory } from '@/lib/storage/history';
 import { SUPPORTED_IMAGE_TYPES, MAX_IMAGE_SIZE_MB } from '@/lib/constants';
@@ -83,116 +81,130 @@ export function InputSection() {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-2xl p-6">
-      <div className="space-y-4">
-        {/* Text Input */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">描述你想要的3D模型</label>
-          <Textarea
-            placeholder="例如：一只蒸汽朋克风格的机械猫头鹰，黄铜材质，精密齿轮装饰..."
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            rows={4}
-            maxLength={2000}
-            className="resize-none"
-          />
-          <div className="text-right text-xs text-muted-foreground">
-            {userInput.length} / 2000
+    <div className="animate-fade-up delay-300 mx-auto w-full max-w-2xl">
+      <div className="glass rounded-2xl p-6 sm:p-8 neon-border">
+        <div className="space-y-5">
+          {/* Text Input */}
+          <div className="space-y-2.5">
+            <label className="text-sm font-medium text-foreground/90">
+              描述你想要的 3D 模型
+            </label>
+            <Textarea
+              placeholder="例如：一只蒸汽朋克风格的机械猫头鹰，黄铜材质，精密齿轮装饰..."
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              rows={4}
+              maxLength={2000}
+              className="resize-none rounded-xl border-border/50 bg-background/50 transition-all duration-200 focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+            />
+            <div className="text-right text-xs text-muted-foreground/60">
+              {userInput.length} / 2000
+            </div>
           </div>
-        </div>
 
-        {/* Image Upload */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">
-            参考图片 <span className="text-muted-foreground">(可选)</span>
-          </label>
+          {/* Image Upload */}
+          <div className="space-y-2.5">
+            <label className="text-sm font-medium text-foreground/90">
+              参考图片 <span className="text-muted-foreground/60">(可选)</span>
+            </label>
 
-          {imageData ? (
-            <div className="relative inline-block">
-              <Image
-                src={imageData.previewUrl}
-                alt="参考图片"
-                width={128}
-                height={128}
-                className="h-32 w-32 rounded-lg border object-cover"
-                unoptimized
-              />
-              <button
-                onClick={() => setImageData(null)}
-                className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground shadow-sm"
+            {imageData ? (
+              <div className="relative inline-block">
+                <Image
+                  src={imageData.previewUrl}
+                  alt="参考图片"
+                  width={128}
+                  height={128}
+                  className="h-28 w-28 rounded-xl border border-border/50 object-cover"
+                  unoptimized
+                />
+                <button
+                  onClick={() => setImageData(null)}
+                  className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground shadow-lg transition-transform hover:scale-110"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+                <p className="mt-1.5 text-xs text-muted-foreground/60 truncate max-w-[112px]">
+                  {imageData.fileName}
+                </p>
+              </div>
+            ) : (
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(true);
+                }}
+                onDragLeave={() => setIsDragOver(false)}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`group flex cursor-pointer flex-col items-center gap-2.5 rounded-xl border-2 border-dashed p-6 transition-all duration-300 ${
+                  isDragOver
+                    ? 'border-primary bg-primary/5 scale-[1.01]'
+                    : 'border-border/40 hover:border-primary/40 hover:bg-primary/5'
+                }`}
               >
-                <X className="h-3 w-3" />
-              </button>
-              <p className="mt-1 text-xs text-muted-foreground truncate max-w-[128px]">
-                {imageData.fileName}
-              </p>
-            </div>
-          ) : (
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDragOver(true);
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/50 transition-colors group-hover:bg-primary/10">
+                  <ImagePlus className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  点击或拖拽上传参考图片
+                </p>
+                <p className="text-xs text-muted-foreground/50">
+                  支持 JPG、PNG、WebP，最大 {MAX_IMAGE_SIZE_MB}MB
+                </p>
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={SUPPORTED_IMAGE_TYPES.join(',')}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageFile(file);
+                e.target.value = '';
               }}
-              onDragLeave={() => setIsDragOver(false)}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors ${
-                isDragOver
-                  ? 'border-primary bg-primary/5'
-                  : 'border-muted-foreground/25 hover:border-primary/50'
-              }`}
-            >
-              <ImagePlus className="h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                点击或拖拽上传参考图片
-              </p>
-              <p className="text-xs text-muted-foreground">
-                支持 JPG、PNG、WebP，最大 {MAX_IMAGE_SIZE_MB}MB
-              </p>
-            </div>
-          )}
+              className="hidden"
+            />
+          </div>
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={SUPPORTED_IMAGE_TYPES.join(',')}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleImageFile(file);
-              e.target.value = '';
-            }}
-            className="hidden"
-          />
+          {/* Platform Tags */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted-foreground/60">
+              将为以下平台生成：
+            </span>
+            <span className="inline-flex items-center rounded-md bg-neon-blue/10 px-2 py-0.5 text-xs font-medium text-neon-blue ring-1 ring-neon-blue/20">
+              Meshy AI
+            </span>
+            <span className="inline-flex items-center rounded-md bg-neon-violet/10 px-2 py-0.5 text-xs font-medium text-neon-violet ring-1 ring-neon-violet/20">
+              Tripo3D
+            </span>
+            <span className="inline-flex items-center rounded-md bg-neon-amber/10 px-2 py-0.5 text-xs font-medium text-neon-amber ring-1 ring-neon-amber/20">
+              Luma AI
+            </span>
+          </div>
+
+          {/* Submit */}
+          <Button
+            onClick={handleSubmit}
+            disabled={isLoading || (!userInput.trim() && !imageData)}
+            className="w-full rounded-xl bg-primary text-primary-foreground py-6 text-base font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 disabled:opacity-40"
+            size="lg"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4.5 w-4.5 animate-spin" />
+                AI 正在生成提示词...
+              </>
+            ) : (
+              <>
+                <Zap className="mr-2 h-4.5 w-4.5" />
+                生成提示词
+              </>
+            )}
+          </Button>
         </div>
-
-        {/* Platform Badges */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground">将为以下平台生成提示词：</span>
-          <Badge variant="secondary">Meshy AI</Badge>
-          <Badge variant="secondary">Tripo3D</Badge>
-          <Badge variant="secondary">Luma AI</Badge>
-        </div>
-
-        {/* Submit */}
-        <Button
-          onClick={handleSubmit}
-          disabled={isLoading || (!userInput.trim() && !imageData)}
-          className="w-full"
-          size="lg"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              AI 正在生成提示词...
-            </>
-          ) : (
-            <>
-              <Sparkles className="mr-2 h-4 w-4" />
-              生成提示词
-            </>
-          )}
-        </Button>
       </div>
-    </Card>
+    </div>
   );
 }
