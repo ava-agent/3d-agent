@@ -182,6 +182,9 @@ export function InputSection() {
             <span className="inline-flex items-center rounded-md bg-neon-amber/10 px-2 py-0.5 text-xs font-medium text-neon-amber ring-1 ring-neon-amber/20">
               Luma AI
             </span>
+            <span className="inline-flex items-center rounded-md bg-neon-emerald/10 px-2 py-0.5 text-xs font-medium text-neon-emerald ring-1 ring-neon-emerald/20">
+              Combos
+            </span>
           </div>
 
           {/* Submit */}

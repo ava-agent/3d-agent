@@ -16,6 +16,7 @@ const GLOW_MAP: Record<string, string> = {
   meshy: 'glow-blue',
   tripo: 'glow-violet',
   luma: 'glow-amber',
+  combos: 'glow-emerald',
 };
 
 export function PlatformCard({ prompt, platform }: PlatformCardProps) {

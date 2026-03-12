@@ -37,6 +37,18 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     maxPromptLength: 500,
     features: ['10秒生成', '免费使用', '简单易用'],
   },
+  combos: {
+    id: 'combos',
+    name: 'Combos',
+    description: 'AI游戏创作平台，将3D概念转化为可玩的3D游戏',
+    websiteUrl: 'https://combos.fun',
+    createUrl: 'https://combos.fun/',
+    color: '#10B981',
+    supportedInputs: ['text'],
+    outputFormats: ['Web Game', '3D Platformer', 'Narrative'],
+    maxPromptLength: 800,
+    features: ['AI游戏生成', '3D场景', '可直接玩', '免费开始'],
+  },
 };
 
 export const PLATFORM_LIST = Object.values(PLATFORMS);

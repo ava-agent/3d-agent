@@ -41,6 +41,12 @@ const platforms = [
     desc: '10秒生成，有免费额度',
     formats: 'GLB, OBJ, FBX',
   },
+  {
+    name: 'Combos',
+    color: '#10B981',
+    desc: 'AI游戏创作，3D概念变可玩游戏',
+    formats: 'Web Game, 3D Platformer',
+  },
 ];
 
 export default function AboutPage() {
@@ -87,7 +93,7 @@ export default function AboutPage() {
         {/* Supported Platforms */}
         <div className="animate-fade-up delay-200 space-y-6">
           <h2 className="text-xl font-semibold">支持的平台</h2>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {platforms.map((p) => (
               <div
                 key={p.name}

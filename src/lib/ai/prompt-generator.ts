@@ -67,7 +67,7 @@ export async function generatePrompts(
 
   const result: GLMPromptResult = JSON.parse(jsonMatch[0]);
 
-  const platformIds: PlatformId[] = ['meshy', 'tripo', 'luma'];
+  const platformIds: PlatformId[] = ['meshy', 'tripo', 'luma', 'combos'];
   const prompts: GeneratedPrompt[] = platformIds.map((id) => ({
     platformId: id,
     prompt: result.prompts[id].prompt,

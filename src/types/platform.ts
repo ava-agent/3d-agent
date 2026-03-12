@@ -1,4 +1,4 @@
-export type PlatformId = 'meshy' | 'tripo' | 'luma';
+export type PlatformId = 'meshy' | 'tripo' | 'luma' | 'combos';
 
 export interface PlatformConfig {
   id: PlatformId;

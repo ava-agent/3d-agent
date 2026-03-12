@@ -35,7 +35,8 @@ export function ResultContainer() {
     return (
       <div className="space-y-6">
         <div className="shimmer h-24 rounded-2xl" />
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="shimmer h-96 rounded-2xl" />
           <div className="shimmer h-96 rounded-2xl" />
           <div className="shimmer h-96 rounded-2xl" />
           <div className="shimmer h-96 rounded-2xl" />
@@ -98,7 +99,7 @@ export function ResultContainer() {
       </div>
 
       {/* Platform Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {data.prompts.map((prompt, i) => (
           <div
             key={prompt.platformId}

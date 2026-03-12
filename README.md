@@ -9,7 +9,7 @@
 ## 功能特性
 
 - **智能提示词生成** — 基于智谱 GLM-4/GLM-4V，自动将中文描述转换为英文优化提示词
-- **多平台支持** — 同时生成 Meshy AI、Tripo3D、Luma AI 三个平台的优化提示词
+- **多平台支持** — 同时生成 Meshy AI、Tripo3D、Luma AI、Combos 四个平台的优化提示词
 - **图片参考** — 支持上传参考图片，AI 会分析图片内容生成提示词
 - **一键跳转** — 复制提示词并直接打开对应平台
 - **历史记录** — 本地 + Supabase 双重持久化
@@ -22,6 +22,7 @@
 | **Meshy AI** | 最适合3D打印，高质量网格 | 文字 + 图片 | GLB, FBX, OBJ, STL, 3MF |
 | **Tripo3D** | 速度快，支持面数控制 | 文字 + 图片 | GLB, FBX, OBJ, USD, STL |
 | **Luma AI** | 10秒生成，有免费额度 | 文字 | GLB, OBJ, FBX |
+| **Combos** | AI游戏创作，3D概念变可玩游戏 | 文字 | Web Game, 3D Platformer |
 
 ## 使用流程
 
@@ -30,7 +31,7 @@
 1. 在首页输入你想要的 3D 模型描述（中英文均可）
 2. 可选：上传参考图片
 3. 点击「生成提示词」
-4. 查看为三个平台生成的优化提示词
+4. 查看为四个平台生成的优化提示词
 5. 点击「复制并打开平台」
 6. 在目标平台粘贴提示词，生成 3D 模型
 
@@ -64,7 +65,7 @@
 | **推理模式** | Single-Turn (非 ReAct) | 单次 LLM 调用完成所有任务，无需迭代推理或工具调用 |
 | **模型路由** | Dynamic Selection | 根据输入类型动态选择 GLM-4 (文本) 或 GLM-4V (视觉) |
 | **输出控制** | JSON Schema Enforcement | 通过 System Prompt 约束输出为结构化 JSON |
-| **多任务** | Multi-Task Single-Call | 语言检测、翻译、3平台优化在一次调用中完成 |
+| **多任务** | Multi-Task Single-Call | 语言检测、翻译、4平台优化在一次调用中完成 |
 
 #### Agent Core 组件
 
@@ -80,13 +81,14 @@ Has Image? ──YES──→ GLM-4V (vision) + multimodal content parts
 
 **2. System Prompt (系统提示词 — "专家人格")**
 
-System Prompt 扮演 **"3D 模型提示词优化专家"** 角色，嵌入三个平台的领域知识：
+System Prompt 扮演 **"3D 模型提示词优化专家"** 角色，嵌入四个平台的领域知识：
 
 | 平台 | 嵌入知识 | 约束条件 |
 |------|---------|---------|
 | **Meshy AI** | 材质描述、3D打印适配、PBR 渲染提示 | max 600 chars, 英文输出 |
 | **Tripo3D** | 几何清晰度、拓扑质量、负面提示词生成 | max 1000 chars, 含 negative prompt |
 | **Luma AI** | 简洁直接的描述，单一主体 | max 500 chars, 简短优先 |
+| **Combos** | 游戏场景描述、角色、环境、玩法元素 | max 800 chars, 游戏化描述 |
 
 **3. Language Pipeline (语言处理管线)**
 
@@ -127,7 +129,7 @@ System Prompt 扮演 **"3D 模型提示词优化专家"** 角色，嵌入三个�
 | 5 | **响应解析** | Regex `/\{[\s\S]*\}/` 提取 JSON → `JSON.parse` → 类型化结果 |
 | 6 | **结果映射** | 映射 platform IDs → 附加 jumpUrl → 构造标准化响应 |
 | 7 | **并行持久化** | Supabase 异步写入 (fire-and-forget) + sessionStorage 存储 |
-| 8 | **结果展示** | 3 张平台卡片 + 一键复制跳转 + 历史记录保存 |
+| 8 | **结果展示** | 4 张平台卡片 + 一键复制跳转 + 历史记录保存 |
 
 **错误处理路径：**
 - 输入校验失败 → HTTP 400
