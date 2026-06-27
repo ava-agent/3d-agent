@@ -10,7 +10,7 @@ const techStack = [
   },
   {
     layer: 'AI 引擎层',
-    tech: 'OpenAI SDK + GLM-4 / GLM-4V',
+    tech: 'OpenAI SDK + Ark CodingPlan / Ark Vision',
     detail: '多模态路由, System Prompt, 结构化输出',
     icon: Cpu,
   },
@@ -74,7 +74,7 @@ export default function AboutPage() {
           <div className="grid gap-4 sm:grid-cols-3">
             {[
               { step: '1', title: '输入描述', desc: '输入中英文描述或上传参考图片', icon: Box },
-              { step: '2', title: 'AI 生成', desc: 'GLM-4 自动优化为各平台专用提示词', icon: Zap },
+              { step: '2', title: 'AI 生成', desc: 'Ark 自动优化为各平台专用提示词', icon: Zap },
               { step: '3', title: '一键跳转', desc: '复制提示词并打开目标平台生成模型', icon: Globe },
             ].map((item) => (
               <div key={item.step} className="glass rounded-xl p-5 neon-border">
@@ -120,14 +120,14 @@ export default function AboutPage() {
             <p className="text-sm text-muted-foreground leading-relaxed">
               本项目采用 <strong className="text-foreground">Single-Turn Structured Output Agent</strong> 模式 —
               一种专门化的提示词工程 Agent 架构。平台知识直接嵌入 System Prompt（静态注入），
-              根据输入类型动态路由到 GLM-4（文本）或 GLM-4V（视觉）模型，
+              根据输入类型动态路由到 Ark CodingPlan（文本）或 Ark 视觉模型，
               通过 JSON Schema 约束输出为结构化数据，一次 LLM 调用完成语言检测、翻译和三平台提示词优化。
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {[
                 { label: '知识注入', value: '静态嵌入 System Prompt' },
                 { label: '推理模式', value: '单次调用 (非 ReAct)' },
-                { label: '模型路由', value: '动态选择 GLM-4 / GLM-4V' },
+                { label: '模型路由', value: '动态选择 Ark chat / vision' },
                 { label: '输出控制', value: 'JSON Schema 结构化' },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-2 text-sm">
@@ -185,7 +185,7 @@ export default function AboutPage() {
 
         {/* Footer info */}
         <div className="text-center text-sm text-muted-foreground/50 space-y-1">
-          <p>3D Agent &middot; 由 <span className="gradient-text font-medium">GLM-4</span> 驱动</p>
+          <p>3D Agent &middot; 由 <span className="gradient-text font-medium">Ark CodingPlan</span> 驱动</p>
           <p>
             <a
               href="https://3d.rxcloud.group"

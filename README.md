@@ -8,7 +8,7 @@
 
 ## 功能特性
 
-- **智能提示词生成** — 基于智谱 GLM-4/GLM-4V，自动将中文描述转换为英文优化提示词
+- **智能提示词生成** — 基于火山引擎 Ark CodingPlan/视觉模型，自动将中文描述转换为英文优化提示词
 - **多平台支持** — 同时生成 Meshy AI、Tripo3D、Luma AI、Combos 四个平台的优化提示词
 - **图片参考** — 支持上传参考图片，AI 会分析图片内容生成提示词
 - **一键跳转** — 复制提示词并直接打开对应平台
@@ -48,7 +48,7 @@
 | **前端展示层** | Next.js 16 + React 19 + Tailwind CSS v4 + shadcn/ui | App Router, Neon Forge 自定义主题 |
 | **交互逻辑层** | Custom Hooks + Browser Storage | useGenerate, useHistory, sessionStorage |
 | **API 服务层** | Next.js API Routes | 输入校验, 请求构建, JSON 解析, 错误处理 |
-| **AI 引擎层** | OpenAI SDK + GLM-4/GLM-4V | 多模态路由, System Prompt, 结构化输出 |
+| **AI 引擎层** | OpenAI SDK + Ark CodingPlan/Ark Vision | 多模态路由, System Prompt, 结构化输出 |
 | **数据持久层** | Supabase + localStorage | PostgreSQL (RLS), 浏览器本地存储 |
 
 ### AI Agent 设计
@@ -63,7 +63,7 @@
 |------|-----------|------|
 | **知识注入** | Static Injection (非 RAG) | 平台知识直接嵌入 System Prompt，而非从向量数据库检索 |
 | **推理模式** | Single-Turn (非 ReAct) | 单次 LLM 调用完成所有任务，无需迭代推理或工具调用 |
-| **模型路由** | Dynamic Selection | 根据输入类型动态选择 GLM-4 (文本) 或 GLM-4V (视觉) |
+| **模型路由** | Dynamic Selection | 根据输入类型动态选择 Ark chat model (文本) 或 `ARK_VISION_MODEL` (视觉) |
 | **输出控制** | JSON Schema Enforcement | 通过 System Prompt 约束输出为结构化 JSON |
 | **多任务** | Multi-Task Single-Call | 语言检测、翻译、4平台优化在一次调用中完成 |
 
@@ -74,9 +74,9 @@
 根据用户输入类型动态构建请求：
 
 ```
-Has Image? ──YES──→ GLM-4V (vision) + multimodal content parts
+Has Image? ──YES──→ ARK_VISION_MODEL + multimodal content parts
              │
-             NO───→ GLM-4 (text)  + text-only content
+             NO───→ ARK_CHAT_MODEL + text-only content
 ```
 
 **2. System Prompt (系统提示词 — "专家人格")**
@@ -124,7 +124,7 @@ System Prompt 扮演 **"3D 模型提示词优化专家"** 角色，嵌入四个�
 |------|------|---------|
 | 1 | **用户输入** | 文字描述 (≤2000 chars) + 可选参考图片 (JPG/PNG/WebP, ≤10MB) |
 | 2 | **请求构建** | 根据是否有图片，构建多模态或纯文本 content parts |
-| 3 | **模型路由** | 有图片 → GLM-4V, 无图片 → GLM-4 |
+| 3 | **模型路由** | 有图片 → `ARK_VISION_MODEL`, 无图片 → `ARK_CHAT_MODEL` |
 | 4 | **LLM 推理** | System Prompt + User Message → Chat Completions API (max_tokens=2000) |
 | 5 | **响应解析** | Regex `/\{[\s\S]*\}/` 提取 JSON → `JSON.parse` → 类型化结果 |
 | 6 | **结果映射** | 映射 platform IDs → 附加 jumpUrl → 构造标准化响应 |
@@ -172,8 +172,13 @@ cp .env.example .env.local
 编辑 `.env.local`：
 
 ```env
-# Required: 智谱 GLM API Key (https://open.bigmodel.cn/)
-GLM_API_KEY=your-glm-api-key
+# Required: Volcengine Ark CodingPlan
+ARK_API_KEY=your-ark-api-key
+ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/coding/v3
+ARK_CHAT_MODEL=doubao-seed-2-0-code-preview-260215
+
+# Optional: verified Ark vision-capable model for image reference inputs
+# ARK_VISION_MODEL=your-ark-vision-model
 
 # Optional: Supabase
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
@@ -208,7 +213,7 @@ src/
 │   └── ui/                    # shadcn/ui 基础组件
 ├── lib/
 │   ├── ai/                    # AI 引擎
-│   │   ├── claude-client.ts   # 智谱 GLM API 客户端 (OpenAI SDK 兼容)
+│   │   ├── ark-client.ts      # 火山 Ark API 客户端 (OpenAI SDK 兼容)
 │   │   ├── prompt-generator.ts # Agent 核心：输入路由 + LLM 调用 + 响应解析
 │   │   └── system-prompt.ts   # 系统提示词 (Expert Persona + 平台知识注入)
 │   ├── hooks/                 # React Hooks (useGenerate, useHistory)
@@ -235,7 +240,7 @@ src/
 
 1. 将代码推送到 GitHub
 2. 在 Vercel 导入项目
-3. 设置环境变量 `GLM_API_KEY`、`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. 设置环境变量 `ARK_API_KEY`、`ARK_BASE_URL`、`ARK_CHAT_MODEL`、可选 `ARK_VISION_MODEL`、`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`
 4. 部署完成
 5. （可选）绑定自定义域名，添加 DNS 记录：`A 3d.rxcloud.group 76.76.21.21`
 
@@ -243,7 +248,11 @@ src/
 
 ```bash
 docker build -t 3d-agent .
-docker run -p 3000:3000 -e GLM_API_KEY=your-key 3d-agent
+docker run -p 3000:3000 \
+  -e ARK_API_KEY=your-key \
+  -e ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/coding/v3 \
+  -e ARK_CHAT_MODEL=doubao-seed-2-0-code-preview-260215 \
+  3d-agent
 ```
 
 ## 开发命令

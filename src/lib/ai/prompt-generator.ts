@@ -1,27 +1,27 @@
-import { getGLMClient } from './claude-client';
+import { getArkClient, getArkModel } from './ark-client';
 import { SYSTEM_PROMPT } from './system-prompt';
 import { GeneratePromptsRequest, GeneratePromptsResponse } from '@/types/api';
 import { GeneratedPrompt, PlatformId } from '@/types/platform';
 import { PLATFORMS } from '@/lib/constants';
 import { ChatCompletionContentPart } from 'openai/resources/chat/completions';
 
-interface GLMPlatformResult {
+interface ArkPlatformResult {
   prompt: string;
   negativePrompt?: string;
   tips: string[];
   recommendedSettings: Record<string, string>;
 }
 
-interface GLMPromptResult {
+interface ArkPromptResult {
   detectedLanguage: 'zh' | 'en' | 'other';
   translatedInput: string | null;
-  prompts: Record<string, GLMPlatformResult>;
+  prompts: Record<string, ArkPlatformResult>;
 }
 
 export async function generatePrompts(
   request: GeneratePromptsRequest
 ): Promise<GeneratePromptsResponse> {
-  const client = getGLMClient();
+  const client = getArkClient();
 
   const contentParts: ChatCompletionContentPart[] = [];
 
@@ -45,8 +45,7 @@ export async function generatePrompts(
     });
   }
 
-  // Use glm-4v for image input, glm-4 for text-only
-  const model = request.imageBase64 ? 'glm-4v' : 'glm-4';
+  const model = getArkModel(!!request.imageBase64);
 
   const completion = await client.chat.completions.create({
     model,
@@ -59,13 +58,13 @@ export async function generatePrompts(
 
   const responseText = completion.choices[0]?.message?.content || '';
 
-  // Extract JSON from response (GLM may wrap it in markdown code blocks)
+  // Extract JSON from response in case the model wraps it in markdown code blocks.
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    throw new Error('Failed to parse GLM response as JSON');
+    throw new Error('Failed to parse model response as JSON');
   }
 
-  const result: GLMPromptResult = JSON.parse(jsonMatch[0]);
+  const result: ArkPromptResult = JSON.parse(jsonMatch[0]);
 
   const platformIds: PlatformId[] = ['meshy', 'tripo', 'luma', 'combos'];
   const prompts: GeneratedPrompt[] = platformIds.map((id) => ({
