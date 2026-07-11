@@ -8,7 +8,7 @@
 
 ## 功能特性
 
-- **智能提示词生成** — 基于火山引擎 Ark CodingPlan/视觉模型，自动将中文描述转换为英文优化提示词
+- **智能提示词生成** — 基于火山引擎 Ark Agent Plan/视觉模型，自动将中文描述转换为英文优化提示词
 - **多平台支持** — 同时生成 Meshy AI、Tripo3D、Luma AI、Combos 四个平台的优化提示词
 - **图片参考** — 支持上传参考图片，AI 会分析图片内容生成提示词
 - **一键跳转** — 复制提示词并直接打开对应平台
@@ -48,7 +48,7 @@
 | **前端展示层** | Next.js 16 + React 19 + Tailwind CSS v4 + shadcn/ui | App Router, Neon Forge 自定义主题 |
 | **交互逻辑层** | Custom Hooks + Browser Storage | useGenerate, useHistory, sessionStorage |
 | **API 服务层** | Next.js API Routes | 输入校验, 请求构建, JSON 解析, 错误处理 |
-| **AI 引擎层** | OpenAI SDK + Ark CodingPlan/Ark Vision | 多模态路由, System Prompt, 结构化输出 |
+| **AI 引擎层** | OpenAI SDK + Ark Agent Plan/Ark Vision | 多模态路由, System Prompt, 结构化输出 |
 | **数据持久层** | Supabase + localStorage | PostgreSQL (RLS), 浏览器本地存储 |
 
 ### AI Agent 设计
@@ -172,9 +172,9 @@ cp .env.example .env.local
 编辑 `.env.local`：
 
 ```env
-# Required: Volcengine Ark CodingPlan
+# Required: Volcengine Ark Agent Plan
 ARK_API_KEY=your-ark-api-key
-ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/coding/v3
+ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/plan/v3
 ARK_CHAT_MODEL=doubao-seed-2-0-code-preview-260215
 
 # Optional: verified Ark vision-capable model for image reference inputs
@@ -250,7 +250,7 @@ src/
 docker build -t 3d-agent .
 docker run -p 3000:3000 \
   -e ARK_API_KEY=your-key \
-  -e ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/coding/v3 \
+  -e ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/plan/v3 \
   -e ARK_CHAT_MODEL=doubao-seed-2-0-code-preview-260215 \
   3d-agent
 ```

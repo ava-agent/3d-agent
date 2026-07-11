@@ -10,7 +10,7 @@ const techStack = [
   },
   {
     layer: 'AI 引擎层',
-    tech: 'OpenAI SDK + Ark CodingPlan / Ark Vision',
+    tech: 'OpenAI SDK + Ark Agent Plan / Ark Vision',
     detail: '多模态路由, System Prompt, 结构化输出',
     icon: Cpu,
   },
@@ -120,7 +120,7 @@ export default function AboutPage() {
             <p className="text-sm text-muted-foreground leading-relaxed">
               本项目采用 <strong className="text-foreground">Single-Turn Structured Output Agent</strong> 模式 —
               一种专门化的提示词工程 Agent 架构。平台知识直接嵌入 System Prompt（静态注入），
-              根据输入类型动态路由到 Ark CodingPlan（文本）或 Ark 视觉模型，
+              根据输入类型动态路由到 Ark Agent Plan（文本）或 Ark 视觉模型，
               通过 JSON Schema 约束输出为结构化数据，一次 LLM 调用完成语言检测、翻译和三平台提示词优化。
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -185,7 +185,7 @@ export default function AboutPage() {
 
         {/* Footer info */}
         <div className="text-center text-sm text-muted-foreground/50 space-y-1">
-          <p>3D Agent &middot; 由 <span className="gradient-text font-medium">Ark CodingPlan</span> 驱动</p>
+          <p>3D Agent &middot; 由 <span className="gradient-text font-medium">Ark Agent Plan</span> 驱动</p>
           <p>
             <a
               href="https://3d.rxcloud.group"

@@ -15,7 +15,7 @@ export function Footer() {
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground/60">
           <span>Powered by</span>
-          <span className="gradient-text font-medium">Ark CodingPlan</span>
+          <span className="gradient-text font-medium">Ark Agent Plan</span>
         </div>
       </div>
     </footer>

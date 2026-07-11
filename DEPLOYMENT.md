@@ -5,7 +5,7 @@
 - Public URL: `https://3d.rxcloud.group`
 - Hosting: Vercel
 - Framework: Next.js 16 App Router
-- Data/AI: Volcengine Ark CodingPlan API and optional Supabase persistence
+- Data/AI: Volcengine Ark Agent Plan API and optional Supabase persistence
 
 ## Local Validation
 
