@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# generated root QA screenshots
+/3d-agent-*.png
+
 # next.js
 /.next/
 /out/
